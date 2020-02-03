@@ -6,6 +6,7 @@ C        = parsevarargin(varargin,'cluster',1:nG);
 bw       = parsevarargin(varargin,'bwidth',1);
 yc       = parsevarargin(varargin,'ycut',0);
 zl       = parsevarargin(varargin,'zeroline','-');
+if numel(bw)>1;         bw = bw(1);                 end
 
 % X limit
 XLIM     = nan(1,2);
@@ -14,7 +15,7 @@ XLIM(1)  = 0.8*bw;
 h.XLim   = XLIM;
 
 % Y limit
-[~,YLIM] = lims([],D(:),[0.1,0.1]);
+[~,YLIM] = lims([],D(:),[.1 .1]);
 if ~yc && all(~(D(~isnan(D(:)))>0)); YLIM(2)=0; end
 if ~yc && all(~(D(~isnan(D(:)))<0)); YLIM(1)=0; end
 h.YLim   = YLIM;

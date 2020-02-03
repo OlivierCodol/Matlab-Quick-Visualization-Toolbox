@@ -1,10 +1,10 @@
 function [XLIM,YLIM,varargout] = lims(X,Y,varargin)
-% Defines limits of a plot
+% Defines limits of a plot based on individual data
 % Syntax is:
 %       [XLIM,YLIM,varargout] = lims(X,Y,varargin)
 %
-% One of the inputs can be empty. If so, it is simply ignored.
-%       e.g. [XLIM,YLIM] = lims( [] , randn(100,1) )
+% One of the inputs can be empty. If so, its respective output is empty too.
+%       e.g. [~,YLIM] = lims( [] , randn(100,1) )
 %
 % Returns the limit values for X and Y
 % varargout is an axis handle, if requested

@@ -10,16 +10,19 @@ if strcmpi(errtype,'ci')
     alpha = parsevarargin(varargin,'alphaci',.05);
     
     % check out CI alpha values
-    if alpha>1 && alpha<100; alpha = alpha/100;
-    elseif alpha>100 || alpha<0; error('CI alpha must be in percents');
-    elseif alpha>.5; alpha = 1-alpha;
+    if alpha>1 && alpha<100
+                            alpha = alpha/100;
+    elseif alpha>.5
+                            alpha = 1-alpha;
+    elseif alpha>100 || alpha<0
+        error('CI alpha must be in percents (0-100) or proportion (0-1)');
     end
 end
 
 N = sum(~isnan(D)); % number of datapoints for each group
 
 % get mean/median
-if      strcmpi(method,'mean'); M = nanmean(D);
+if      strcmpi(method,'mean');   M = nanmean(D);
 elseif  strcmpi(method,'median'); M = nanmedian(D);
 else;   error('method must be ''mean'' or ''median''.');
 end

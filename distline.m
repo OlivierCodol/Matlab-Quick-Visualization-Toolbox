@@ -14,10 +14,11 @@ function [h,varargout] = distline(D,varargin)
 % O.Codol 17th Mar. 2019
 % codol.olivier@gmail.com
 %--------------------------------------------------------------------------
-%%
 
-% Check input
-%--------------------------------------------------------------------------
+
+%----------------------------------------------------
+% PARSE INPUTS
+%----------------------------------------------------
 D       = checkinplot(D);                    % check data input format
 nG      = size(D,2);                         % get number of groups
 
@@ -26,22 +27,25 @@ nG      = size(D,2);                         % get number of groups
 
 
 
-% Parse options
-%--------------------------------------------------------------------------
+%----------------------------------------------------
+% PARSE OPTIONS
+%----------------------------------------------------
 if nG ==1
     default_cc = parula(nG+1); % avoid yellow
 else
     default_cc = parula(nG);
 end
 
-h       = parsevarargin(varargin,'parent','init');
+h       = parsevarargin(varargin,'parent','init'); axes(h);
 cc      = parsevarargin(varargin,'color',default_cc);
 lw      = parsevarargin(varargin,'linewidth',1);
-alpha   = parsevarargin(varargin,'alpha',0);
+a       = parsevarargin(varargin,'alpha',0);
 hv      = parsevarargin(varargin,'orientation','vertical');
 norm_f  = parsevarargin(varargin,'normalise',false); % normalise flag
-if size(cc,1)==1; cc = repmat(cc,[nG,1]); end
 
+if size(cc,1)==1;       cc = repmat(cc,[nG,1]);     end
+if numel(a) <nG;        a  = repmat(a(:),[nG,1]);   end
+if numel(lw)<nG;        lw = repmat(lw(:),[nG,1]);  end
 
 
 % Vertical or horizontal plotting
@@ -59,8 +63,10 @@ end
 
 
 
-% Main code (plots each distribution)
-%--------------------------------------------------------------------------
+
+%----------------------------------------------------
+% MAIN CODE (plot each distribution)
+%----------------------------------------------------
 
 AllData = cell(nG,1);  % Allocate memory
 
@@ -76,11 +82,10 @@ for k = 1:nG
     line(X,Y,'color',cc(k,:),'parent',h,'LineWidth',lw)
     
     % Fill distribution if option is required
-    if alpha~=0
-        Xp = [X fliplr((X))];%zeros(1,numel(X))];
-        Yp = [(Y) zeros(1,numel(Y))];%fliplr((Y))];
-        patch(Xp,Yp,1,'facecolor',cc(k,:),...
-            'facealpha',alpha,'parent',h,'EdgeColor','none');
+    if a~=0
+        Xp = [X fliplr((X))];
+        Yp = [(Y) zeros(1,numel(Y))];
+        patch(Xp,Yp,1,'facecolor',cc(k,:),'facealpha',a(k),'parent',h,'EdgeColor','none');
     end
     
     % Pack output
@@ -93,8 +98,10 @@ end
 
 
 
-% Pack output
-%--------------------------------------------------------------------------
+
+%----------------------------------------------------
+% PACK OUTPUT DISTRIBUTIONS
+%----------------------------------------------------
 
 varargout = {AllData};
 
