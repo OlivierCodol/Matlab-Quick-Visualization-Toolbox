@@ -9,15 +9,16 @@ function [hF,hA] = scatterdist(Xi,Yi,varargin)
 %
 %  ---options are:
 %   'parent'        : parent figure handle (default make new figure). If an
-%                     axis is provided, its parent figure is used.
+%                     axis handle is provided, its parent figure is used.
 %   'alpha'         : patch transparency value (default .5) for the
 %                     distribution. Set to 0 to remove any patch color.
-%   'color'         : n*3 matrix of rgb (default all black)
-%   'markersize'    : size of individual datapoints (default 5)
-%   'xlim'          : specify the limits in the x-axis manually. By default
-%                     this includes all datapoints and adds 10% of the data
-%                     range on each side of the data.
-%   'ylim'          : same as xlim but on the y-axis.
+%   'color'         : (1-to-n)*3 matrix of rgb (default all black)
+%   'markersize'    : size of individual datapoints (default 5). Can be a
+%                     1*n or n*1 vector to specify each group individually.
+%   'marker'        : Marker type for the scatterplot. Can be a scalaer up 
+%                     to a 1*n or n*1 to specify each group individually.
+%                     Default is 'o>ds' for the first 4 groups, and then 
+%                     repeats itself.
 %   'position'      : 4-element vector indicating the area in the figure in
 %                     which to plot. Default is [.1 .1 .9 .9].
 %   'hd'            : 'histogram' or 'distribution', to specify if the
@@ -25,11 +26,17 @@ function [hF,hA] = scatterdist(Xi,Yi,varargin)
 %                     histogram or a distribution. Alternatively, 1 and 2
 %                     can be employed for histogram and distribution,
 %                     respectively. Default is distribution.
-%   'nbins'         : number of bins for the histograms (default 5). Can
-%                     provide a 2-elements vector to specify different
-%                     number of bins for X (1st element) and Y (2nd). If
-%                     'hd' is set as 'distribution' or 2, this input is
+%   'nbins'         : (1 to n)-by-(1 to 2) matrix. Specifies the number of
+%                     bins for the histograms (default 5). The first column
+%                     is the number of bins for the x axis histogram and
+%                     the second for the y-axis histogram. Each row
+%                     indicates the values for a group.
+%                     If 'hd' is set as 'distribution' or 2, this input is
 %                     ignored.
+%   'zeroline'      : specify a linestyle and draw a line at y=0 and x=0
+%                     with that linestyle (default '-'). 
+%                     If the plot does not include 0 then no line is drawn.
+%                     Input an empty value [] to toggle off.
 % 
 %---------------------------------------------------------
 % Peter J. Holland (U. of Birmingham, UK) & Olivier Codol
@@ -38,20 +45,41 @@ function [hF,hA] = scatterdist(Xi,Yi,varargin)
 %---------------------------------------------------------
 
 % Convert input X and Y class to cell if needed
-if isa(Xi,'double'); Xc = mat2cell(Xi,size(Xi,1),ones(1,size(Xi,2))); end
-if isa(Yi,'double'); Yc = mat2cell(Yi,size(Yi,1),ones(1,size(Yi,2))); end
+if isa(Xi,'double')
+    Xc = mat2cell(Xi,size(Xi,1),ones(1,size(Xi,2)));
+else
+    Xc = Xi;
+    Xi = reshape(cat(1,Xc{:}),[],1);
+end
+if isa(Yi,'double')
+    Yc = mat2cell(Yi,size(Yi,1),ones(1,size(Yi,2)));
+else
+    Yc = Xi;
+    Yi = reshape(cat(1,Yi{:}),[],1);
+end
 
 
-nG      = numel(Xi);
+% Parse options
+nG      = numel(Xc);
 a       = parsevarargin(varargin,'alpha',.5);
-mk      = parsevarargin(varargin,'markersize',5);
+mksz    = parsevarargin(varargin,'markersize',5);
 nbins   = parsevarargin(varargin,'nbins',5);
 cc      = parsevarargin(varargin,'color','k');
+mk      = parsevarargin(varargin,'marker','o>ds');
+zl      = parsevarargin(varargin,'zeroline','-');
+
+
+% Scale options if needed so that each group has his value
 if size(cc,1)==1; cc = repmat(cc,[nG,1]); end
-if numel(nbins)==1; nbins(2)=nbins; end; nbins = ceil(nbins);
+if size(nbins,2)==1; nbins(:,2)=nbins; end; nbins = ceil(nbins);
+if size(nbins,1)<nG; nbins = repmat(nbins,nG,1); end
+if numel(mksz)<nG; mksz = repmat(mksz(:),nG,1); end
+if numel(a)<nG; a = repmat(a(:),nG,1); end
+if numel(mk)<nG; mk = repmat(mk(:),nG,1); end
 
 
-hd = parsevarargin(varargin,'hd','distribution'); % hist. or distribution
+% histogram or distribution
+hd = parsevarargin(varargin,'hd','distribution'); 
 if isa(hd,'char') && strcmpi(hd,'histogram')
     hd=1;
 elseif isa(hd,'char') && strcmpi(hd,'distribution')
@@ -62,15 +90,15 @@ elseif isa(hd,'char')
     error('hd must be ''distribution'' or ''histogram''')
 end
 
+
 % Complicated parsing of 'parent' to ensure hF is a figure handle
 hF = parsevarargin(varargin,'parent','init'); % original axis
 while ~strcmpi(class(hF),'matlab.ui.Figure'); hF = hF.Parent; end
 k = find(strcmpi(varargin,'parent')); if ~any(k); clf(hF); end
+
+
+% Define all subaxes positions in the figure
 P = parsevarargin(varargin,'Position',[.1 .1 .9 .9]);
-
-
-% Define all subaxes positions in the figure %TODO CREATE VARARGIN FOR PM
-% PX PY POSITIONS xDistPosition yDistPosition scatterPosition
 PM = [.2 .2 .7 .7]       .* [P(3) P(4) P(3) P(4)] + [P(1) P(2) 0 0];
 PX = [0.05 0.2 0.15 0.7] .* [P(3) P(4) P(3) P(4)] + [P(1) P(2) 0 0];
 PY = [0.2 0.05 0.7 0.15] .* [P(3) P(4) P(3) P(4)] + [P(1) P(2) 0 0];
@@ -82,34 +110,33 @@ hA(3) = axes('parent',hF,'units','normalized','Position',PY,'NextPlot','add'); %
 % Find proper limits
 ymargin = range(Yi(:))*0.1;
 xmargin = range(Xi(:))*0.1;
-XL = [min(Xi(:))-xmargin max(Xi(:))+xmargin];
-YL = [min(Yi(:))-ymargin max(Yi(:))+ymargin];
-YL = parsevarargin(varargin,'ylim',YL); % if limits specified in input
-XL = parsevarargin(varargin,'xlim',XL);
+XLIM = [min(Xi(:))-xmargin max(Xi(:))+xmargin];
+YLIM = [min(Yi(:))-ymargin max(Yi(:))+ymargin];
+YLIM = parsevarargin(varargin,'ylim',YLIM); % if limits specified in input
+XLIM = parsevarargin(varargin,'xlim',XLIM);
 
 
-MKS = {'o';'>';'d';'s'};
-% MKS = repmat({'o';'>'},nG,1);
 
 
-for k = 1:size(Xi,2)
+
+for k = 1:nG
     X = Xc{:,k};
     Y = Yc{:,k};
     c = cc(k,:);
     
     %---------- Main scatter
-    line(X,Y,'linestyle','none','parent',hA(1),'marker',MKS{k},...
-      'markerfacecolor',c,'color',c,'markeredgecolor','k','markersize',mk);
+    line(X,Y,'linestyle','none','parent',hA(1),'marker',mk(k),...
+      'markerfacecolor',c,'color',c,'markeredgecolor','k','markersize',mksz(k));
     
   
     %---------- Y density
     M = repmat(mean(Y),1,2); % mean
-    h = line(XL,M,'color',c,'parent',hA(1),'LineWidth',1,'XLimInclude','off');
+    h = line(XLIM,M,'color',c,'parent',hA(1),'LineWidth',1,'XLimInclude','off');
     uistack(h,'bottom')
     if hd==1 % histogram or distribution
-        histogram(Y,nbins(2),'Parent',hA(2),'FaceColor',cc(k,:),'Orientation','horizontal');
+        histogram(Y,nbins(k,2),'Parent',hA(2),'FaceColor',cc(k,:),'Orientation','horizontal');
     elseif hd==2
-        [hA(2),D] = distline({Y},'parent',hA(2),'color',c,'alpha',a,'orientation','horizontal');
+        [hA(2),D] = distline({Y},'parent',hA(2),'color',c,'alpha',a(k),'orientation','horizontal');
         Mh = interp1(D{1}(:,2),D{1}(:,1),M(1)); % mean height
         line([0 Mh],M,'color',c,'parent',hA(2),'LineWidth',2,'YLimInclude','off')
     end
@@ -117,18 +144,20 @@ for k = 1:size(Xi,2)
     
     %---------- X density
     M = repmat(mean(X),1,2); % mean
-    h = line(M,YL,'color',c,'parent',hA(1),'LineWidth',1,'XLimInclude','off');
+    h = line(M,YLIM,'color',c,'parent',hA(1),'LineWidth',1,'XLimInclude','off');
     uistack(h,'bottom')
     if hd==1 % histogram or distribution
-        histogram(X,nbins(1),'Parent',hA(3),'FaceColor',cc(k,:));
+        histogram(X,nbins(k,1),'Parent',hA(3),'FaceColor',cc(k,:));
     elseif hd==2
-        [hA(3),D] = distline({X},'parent',hA(3),'color',c,'alpha',a);
+        [hA(3),D] = distline({X},'parent',hA(3),'color',c,'alpha',a(k));
         Mh = interp1(D{1}(:,1),D{1}(:,2),M(1)); % mean height
         line(M,[0 Mh],'color',c,'parent',hA(3),'LineWidth',2,'YLimInclude','off')
     end
     
 end
 
+
+% Some design housekeeping...
 hA(1).Box = 'on';
 hA(1).YAxisLocation = 'right';
 hA(1).XAxisLocation = 'top';
@@ -141,21 +170,40 @@ hA(3).YAxis.Visible = 'off';
 hA(2).XDir = 'reverse';
 hA(3).YDir = 'reverse';
 
+
+
 % Apply proper limits
-if diff(YL)~=0
-    hA(1).YLim = YL;
-    hA(2).YLim = YL;
+if diff(YLIM)~=0
+    hA(1).YLim = YLIM;
+    hA(2).YLim = YLIM;
 end
-if diff(XL)~=0
-    hA(1).XLim = XL;
-    hA(3).XLim = XL;
+if diff(XLIM)~=0
+    hA(1).XLim = XLIM;
+    hA(3).XLim = XLIM;
 end
 
+
 % Make zero lines
-h = line([0 0],[-10000000 10000000],'color',[.7 .7 .7],'parent',hA(1),...
-    'LineWidth',1,'XLimInclude','off','LineStyle','-');
-uistack(h,'top')
-h = line([-10000000 10000000],[0 0],'color',[.7 .7 .7],'parent',hA(1),...
-    'LineWidth',1,'XLimInclude','off','LineStyle','-');
-uistack(h,'top')
+% Zero line
+almostblack = [.3 .3 .3];
+if ~isempty(zl) && ~ischar(zl); zl='-'; end
+if XLIM(1)<0 && XLIM(2)>0 && ~isempty(zl)
+    h = line([0 0],YLIM,        'color',        almostblack ,...
+                                'parent',       hA(1)       ,...
+                                'LineWidth',    1           ,...
+                                'XLimInclude',  'off'       ,...
+                                'LineStyle',    zl          );
+    uistack(h,'top')
+end
+if YLIM(1)<0 && YLIM(2)>0 && ~isempty(zl)
+    h = line(XLIM,[0 0],        'color',        almostblack ,...
+                                'parent',       hA(1)       ,...
+                                'LineWidth',    1           ,...
+                                'XLimInclude',  'off'       ,...
+                                'LineStyle',    zl          );
+    uistack(h,'top')
+end
+
+% Back to the main axis as current
+axes(hA(1));
 

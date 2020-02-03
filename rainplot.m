@@ -14,8 +14,7 @@ function h = rainplot(D,varargin)
 %   'cluster'       : a 1*n or n*1 vector indicating which cluster each
 %                     group belongs to (default 1:n, ie. each group is his
 %                     its own cluster)
-%   'alpha'         : patch transparency value (default .5). Set to 0 to
-%                     remove any patch color.
+%   'marker'        : type of "rain" marker, either '-' (default) or 'o'.
 %   'dots'          : 'deport', 'align', 'silo' or 'jitter' (default 'align')
 %   'ycut'          : re-center the y axis on the datapoints (1) or not (0,
 %                     default)
@@ -36,9 +35,11 @@ function h = rainplot(D,varargin)
 %                     (default same as 'color')
 %
 %-------------
-%     these options can be scalars or n*1 or 1*1 vectors to specify
+%     these options can be scalars or n*1, 1*n or 1*1 vectors to specify
 %     individual characteristics to each bar.
 %
+%   'alpha'         : patch transparency value (default .5). Set to 0 to
+%                     remove any patch color.
 %   'framewidth'    : width of cloud frames (default .5)
 %   'errorwidth'    : width of CI error bars (default 1)
 %   'modesize'      : size of mode point (default 5)
@@ -159,7 +160,7 @@ for k = 1:nG
                             'markeredgecolor',  CC          );
         case '-'
             Y = repmat([.25 .35],sum(~isnan(D(:,k))),1)+Ck;
-            X = repmat(X(:),1,2);
+            X = repmat(D(:,k),1,2);
             line(X',Y','linewidth',mksz(k),'color',CC);
     end
     hold on

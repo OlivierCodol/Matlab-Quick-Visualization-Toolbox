@@ -55,7 +55,7 @@ nG = numel(M);                          % get number of groups
 
 
 h      = parsevarargin(varargin,'parent',       'init'              ); axes(h);
-C      = parsevarargin(varargin,'cluster',      ones(1,nG)          );
+C      = parsevarargin(varargin,'cluster',      1:nG                );
 ew     = parsevarargin(varargin,'errorwidth',   3                   );
 mksz   = parsevarargin(varargin,'markersize',   2                   );
 mk     = parsevarargin(varargin,'marker',       '.'                 );

@@ -62,7 +62,7 @@ nG = numel(M);                          % get number of groups
 
 
 h       = parsevarargin(varargin,'parent','init'); axes(h);
-C       = parsevarargin(varargin,'cluster',ones(1,nG));
+C       = parsevarargin(varargin,'cluster',1:nG);
 a       = parsevarargin(varargin,'alpha',.5);
 fw      = parsevarargin(varargin,'framewidth',.5);
 ew      = parsevarargin(varargin,'errorwidth',1.5);

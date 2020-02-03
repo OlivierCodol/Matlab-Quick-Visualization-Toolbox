@@ -8,8 +8,17 @@ function [h,varargout] = distline(D,varargin)
 %
 %  ---options are:
 %   'parent'        : parent axis handle (default make new figure)
-%   'color'         : n*3 matrix of rgb (default parula)
-%   'linewidth'     : width of distribution lines
+%   'color'         : 1*3 to n*3 matrix of rgb (default parula)
+%   'linewidth'     : scalar to n*1 voctor specifying width of distribution
+%                     lines.
+%   'alpha'         : alpha of distribution colors (default 0, ie.
+%                     transparent).
+%                     Can be up to n*1 vector for different alpha for each
+%                     distribution.
+%   'orientation'   : 'horizontal' or 'vertical' (default) distribution plots
+%   'normalise'     : normalise distributions (1) or not (0, default)
+
+
 %   
 % O.Codol 17th Mar. 2019
 % codol.olivier@gmail.com
@@ -30,7 +39,7 @@ nG      = size(D,2);                         % get number of groups
 %----------------------------------------------------
 % PARSE OPTIONS
 %----------------------------------------------------
-if nG ==1
+if nG==1
     default_cc = parula(nG+1); % avoid yellow
 else
     default_cc = parula(nG);
@@ -79,7 +88,7 @@ for k = 1:nG
     if hv; [X,Y] = deal(Y,X); end               % flip axis to vertical
     
     % Plot distribution
-    line(X,Y,'color',cc(k,:),'parent',h,'LineWidth',lw)
+    line(X,Y,'color',cc(k,:),'parent',h,'LineWidth',lw(k))
     
     % Fill distribution if option is required
     if a~=0

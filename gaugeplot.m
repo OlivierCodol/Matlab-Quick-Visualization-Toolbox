@@ -47,7 +47,7 @@ nC = size(D,1);                   % get number of categories per group
 % PARSE OPTIONS
 %----------------------------------------------------
 h       = parsevarargin(varargin,'parent','init'); axes(h);
-C       = parsevarargin(varargin,'cluster',ones(1,nG));
+C       = parsevarargin(varargin,'cluster',1:nG);
 a       = parsevarargin(varargin,'alpha',.5);
 fw      = parsevarargin(varargin,'framewidth',.5);
 cc      = parsevarargin(varargin,'color',cool(nC-1));
