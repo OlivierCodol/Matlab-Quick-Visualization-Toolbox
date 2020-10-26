@@ -18,8 +18,8 @@ switch dots
         Y = sort(Y);
         X = (linspace(CENTER-WIDTH/2,CENTER+WIDTH/2,n)+Ck);
     case 'jitter'
-        [~,~,bandwidth] = ksdensity(Y); % optimal bandwith for data density
-        [f,xi] = ksdensity(Y,'width',bandwidth); % jitter according to density
+        %[~,~,bandwidth] = ksdensity(Y); % optimal bandwith for data density
+        [f,xi] = ksdensity(Y);%,'width',bandwidth); % jitter according to density
         fJit = interp1(xi,f,Y);
         jitX = fJit.*rand(n,1);
         X = (-WIDTH*jitX/max(jitX)+CENTER+WIDTH/2+Ck);

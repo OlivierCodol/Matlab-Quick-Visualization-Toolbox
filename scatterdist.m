@@ -37,6 +37,11 @@ function [hF,hA] = scatterdist(Xi,Yi,varargin)
 %                     with that linestyle (default '-'). 
 %                     If the plot does not include 0 then no line is drawn.
 %                     Input an empty value [] to toggle off.
+% 'bandwidthfactor' : how much smoothing occurs in the distribution, with
+%                     values between 0 and 1 indicating less smoothing and
+%                     above 1 indicating more smooothing (default 1).
+%                     Can be a scalar or n-element vector.
+%                     Also see built-in function ksdensity.
 % 
 %---------------------------------------------------------
 % Peter J. Holland (U. of Birmingham, UK) & Olivier Codol
@@ -67,15 +72,17 @@ nbins   = parsevarargin(varargin,'nbins',5);
 cc      = parsevarargin(varargin,'color','k');
 mk      = parsevarargin(varargin,'marker','o>ds');
 zl      = parsevarargin(varargin,'zeroline','-');
+bwf     = parsevarargin(varargin,'bandwidthfactor',1);
 
 
 % Scale options if needed so that each group has his value
-if size(cc,1)==1; cc = repmat(cc,[nG,1]); end
-if size(nbins,2)==1; nbins(:,2)=nbins; end; nbins = ceil(nbins);
-if size(nbins,1)<nG; nbins = repmat(nbins,nG,1); end
-if numel(mksz)<nG; mksz = repmat(mksz(:),nG,1); end
-if numel(a)<nG; a = repmat(a(:),nG,1); end
-if numel(mk)<nG; mk = repmat(mk(:),nG,1); end
+if size(cc,1)==1;       cc = repmat(cc,[nG,1]);         end
+if size(nbins,2)==1;    nbins(:,2)=nbins;               end; nbins = ceil(nbins);
+if size(nbins,1)<nG;    nbins = repmat(nbins,nG,1);     end
+if numel(mksz)<nG;      mksz = repmat(mksz(:),nG,1);    end
+if numel(a)<nG;         a = repmat(a(:),nG,1);          end
+if numel(mk)<nG;        mk = repmat(mk(:),nG,1);        end
+if numel(bwf)<nG;       bwf = repmat(bwf(:),nG,1);      end
 
 
 % histogram or distribution
@@ -136,7 +143,11 @@ for k = 1:nG
     if hd==1 % histogram or distribution
         histogram(Y,nbins(k,2),'Parent',hA(2),'FaceColor',cc(k,:),'Orientation','horizontal');
     elseif hd==2
-        [hA(2),D] = distline({Y},'parent',hA(2),'color',c,'alpha',a(k),'orientation','horizontal');
+        [hA(2),D] = distline({Y},   'parent',           hA(2)           ,...
+                                    'color',            c               ,...
+                                    'alpha',            a(k)            ,...
+                                    'orientation',      'horizontal'    ,...
+                                    'bandwidthfactor',  bwf(k))         ;
         Mh = interp1(D{1}(:,2),D{1}(:,1),M(1)); % mean height
         line([0 Mh],M,'color',c,'parent',hA(2),'LineWidth',2,'YLimInclude','off')
     end
