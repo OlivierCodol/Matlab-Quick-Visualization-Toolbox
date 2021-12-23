@@ -37,10 +37,10 @@ function h = dotplot(D,varargin)
 %     individual colors to each bar.
 %
 %   'color'         : 1*3 or n*3 matrix of rgb (default all black)
-%   'modecolor'     : n*3 matrix of rgb color of individual datapoints 
-%                     (default same as 'color')
-%   'modeedgecolor' : n*3 matrix of rgb color of individual datapoints
-%                     edges (default same as 'color')
+%   'markerfacecolor' : n*3 matrix of rgb color of individual datapoints 
+%                       (default same as 'color')
+%   'markeredgecolor' : n*3 matrix of rgb color of individual datapoints
+%                       edges (default same as 'color')
 %   
 % O.Codol 1st Mar. 2019
 % codol.olivier@gmail.com
@@ -54,16 +54,16 @@ D = checkinplot(D);                     % check data input format
 nG = numel(M);                          % get number of groups
 
 
-h      = parsevarargin(varargin,'parent',       'init'              ); axes(h);
-C      = parsevarargin(varargin,'cluster',      1:nG                );
-ew     = parsevarargin(varargin,'errorwidth',   3                   );
-mksz   = parsevarargin(varargin,'markersize',   2                   );
-mk     = parsevarargin(varargin,'marker',       '.'                 );
-dots   = parsevarargin(varargin,'dots',         'jitter'            );
-cc     = parsevarargin(varargin,'color',        zeros(nG,3)         );
-mfc    = parsevarargin(varargin,'modecolor',    repmat(cc,[nG,1])   );
-mec    = parsevarargin(varargin,'modeedgecolor',repmat(cc,[nG,1])   );
-msz    = parsevarargin(varargin,'modesize',     20                  );
+h      = parsevarargin(varargin,'parent',         'init'              ); axes(h);
+C      = parsevarargin(varargin,'cluster',        1:nG                );
+ew     = parsevarargin(varargin,'errorwidth',     3                   );
+mksz   = parsevarargin(varargin,'markersize',     2                   );
+mk     = parsevarargin(varargin,'marker',         '.'                 );
+dots   = parsevarargin(varargin,'dots',           'jitter'            );
+cc     = parsevarargin(varargin,'color',          zeros(nG,3)         );
+mfc    = parsevarargin(varargin,'markerfacecolor',repmat(cc,[nG,1])   );
+mec    = parsevarargin(varargin,'markeredgecolor',repmat(cc,[nG,1])   );
+msz    = parsevarargin(varargin,'modesize',       20                  );
 
 if size(cc,2)~=3;  error(          'color option should contain 3 values per row.');end
 if size(mfc,2)~=3; error(    'markercolor option should contain 3 values per row.');end

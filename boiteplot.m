@@ -49,7 +49,7 @@ function h = boiteplot(D,varargin)
 D = checkinplot(D);                     % check data input format
 [M,err] = descriptive(D,varargin{:});   % get descriptive statistics
 nG = numel(M);                          % get number of groups
-Q = flipud(quantile(D,[.05 .25 .5 .75 .95]));
+Q = flipud(reshape(quantile(D,[.05 .25 .5 .75 .95]),5,nG));
 
 
 h       = parsevarargin(varargin,'parent','init'); axes(h);
