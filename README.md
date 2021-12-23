@@ -1,4 +1,4 @@
-# [Matlab] Mini Visualization Toolbox
+# [Matlab] Quick Visualization Toolbox
 
 This is a set of custom functions for plotting various data visualizations on Matlab.
 If you want to try more in-depth vizualisation, I strongly recommend 
@@ -33,6 +33,10 @@ distributions on each axis. The Distributions can be "classic" histograms
 or kernel-smoothed distributions. The properties of the kernel can easily be adjusted using input arguments to the function.
 
 <img src="img\scatterdist.png" alt="scatterdist" width="500">
+
+## Plotting figure legends
+
+The functions ```legendbox.m``` and ```legendline.m``` allow plotting legends anywhere on a figure. An illustration of the legend produced by ```legendbox.m``` and ```legendline.m``` is available on the right-hand side of the gaugeplot and distribution plot figures above, respectively.
 
 ## Plotting group data
 
