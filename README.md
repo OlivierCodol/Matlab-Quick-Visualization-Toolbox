@@ -1,4 +1,4 @@
-# [Matlab] Quick Visualization Toolbox
+Quick Visualization Toolbox
 
 This is a set of custom functions for plotting various data visualizations on Matlab.
 If you want to try more in-depth vizualisation, I strongly recommend 
