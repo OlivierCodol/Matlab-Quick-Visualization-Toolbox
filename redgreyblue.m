@@ -1,31 +1,23 @@
 function c = redgreyblue(m,varargin)
-%REDBLUE    Shades of red and blue color map
 
 if (nargin<1 || isempty(m))
     m = size(get(gcf,'colormap'),1);
 end
 if nargin==2
-    CENTRE = varargin{1};
+    CENTER = varargin{1};
 else
-    CENTRE = .85;
+    CENTER = .5;
 end
 
-if (mod(m,2) == 0) % if pair number of colours
-    m1 = m*0.5;
-    r = reshape(linspace(0,CENTRE,m1+1),[],1);
-    g = r(1:end-1);
-    r = [r(1:end-1); CENTRE*ones(m1,1)];
-    g = [g; flipud(g)];
-    b = flipud(r);
-    
-else % if odd number of colours
-    m1 = floor(m*0.5);
-    r = reshape(linspace(0,CENTRE,m1+1),[],1);
-    g = r(1:end-1);
-    r = [r(1:end-1); CENTRE*ones(m1+1,1)];
-    g = [g; CENTRE; flipud(g)];
-    b = flipud(r);
-    
-end
+m1 = floor(m*CENTER);
+topval = 0.85; % brightness of the grey (if 1, then it becomes white)
+
+r = reshape(linspace(0,topval,m1),[],1);
+g = r;
+r = [r; topval*ones(m-m1,1)];
+g = [g; flipud(reshape(linspace(0,topval,m-m1),[],1))];
+b = flipud(reshape(linspace(0,topval,m-m1),[],1));
+b = [topval*ones(m1,1); b];
 
 c = [r g b]; 
+
